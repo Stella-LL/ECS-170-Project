@@ -5,28 +5,26 @@ from code.stage_2_code.Evaluate_Accuracy import Evaluate_Accuracy
 
 # Load  data
 
-dataset_folder_path = "ECS170_Project/data/stage_2_data"
-train_file_path = "/train.csv"
-test_file_path = "/test.csv"
+dataset_folder_path = "../ECS170_Project/data/stage_2_data/"
 
-train_dataset = Dataset_Loader(
-    dataset_source_folder_path = dataset_folder_path,
-    dataset_source_file_name = train_file_path
-)
-test_dataset = Dataset_Loader(
-    dataset_source_folder_path = dataset_folder_path,
-    dataset_source_file_name = test_file_path
-)
-
+train_dataset = Dataset_Loader('train data', '')
+train_dataset.dataset_source_folder_path = dataset_folder_path
+train_dataset.dataset_source_file_name = 'train.csv'
 train_data = train_dataset.load()
+
+
+test_dataset = Dataset_Loader('test data', '')
+test_dataset.dataset_source_folder_path = dataset_folder_path
+test_dataset.dataset_source_file_name = 'test.csv'
 test_data = test_dataset.load()
 
 
-# # 3. Create method
-# method_obj = Method_MLP(
-#     mName='MLP',
-#     mDescription='Multilayer Perceptron for multiclass classification'
-# )
+
+#  Create method
+method_obj = Method_MLP(
+    mName='MLP',
+    mDescription='Multilayer Perceptron for multiclass classification'
+)
 
 # method_obj.data = {
 #     'train': train_data,

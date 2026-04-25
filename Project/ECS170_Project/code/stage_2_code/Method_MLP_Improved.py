@@ -12,7 +12,7 @@ from torch import nn
 import numpy as np
 
 
-class Method_MLP(method, nn.Module):
+class Method_MLP2(method, nn.Module):
     data = None
     # it defines the max rounds to train the model
     max_epoch = 500
@@ -28,11 +28,13 @@ class Method_MLP(method, nn.Module):
         # check here for nn.Linear doc: https://pytorch.org/docs/stable/generated/torch.nn.Linear.html
         # input size = 784 pixels
         # output size = 10 classes, labels 0-9
-        self.fc_layer_1 = nn.Linear(784,128)
+        self.fc_layer_1 = nn.Linear(784,512)
+        self.fc_layer_2 = nn.Linear(512,256)
+        self.fc_layer_3 = nn.Linear(256,128)
         # check here for nn.ReLU doc: https://pytorch.org/docs/stable/generated/torch.nn.ReLU.html
         self.activation_func_1 = nn.ReLU()
-        self.fc_layer_2 = nn.Linear(128,64)
-        self.fc_layer_3 = nn.Linear(64,10)
+        self.fc_layer_4 = nn.Linear(128,64)
+        self.fc_layer_5 = nn.Linear(64,10)
         # check here for nn.Softmax doc: https://pytorch.org/docs/stable/generated/torch.nn.Softmax.html
         self.activation_func_2 = nn.ReLU()
 
@@ -43,12 +45,14 @@ class Method_MLP(method, nn.Module):
         '''Forward propagation'''
         # hidden layer embeddings
         h = self.activation_func_1(self.fc_layer_1(x))
+        h = self.activation_func_1(self.fc_layer_2(h))
+        h = self.activation_func_1(self.fc_layer_3(h))
+        h = self.activation_func_1(self.fc_layer_4(h))
         # outout layer result
         # self.fc_layer_2(h) will be a nx2 tensor
         # n (denotes the input instance number): 0th dimension; 2 (denotes the class number): 1st dimension
         # we do softmax along dim=1 to get the normalized classification probability distributions for each instance
-        h = self.activation_func_2(self.fc_layer_2(h))
-        y_pred = self.fc_layer_3(h)
+        y_pred = self.fc_layer_5(h)
         return y_pred
 
     # backward error propagation will be implemented by pytorch automatically
@@ -56,9 +60,14 @@ class Method_MLP(method, nn.Module):
 
     def train(self, X, y):
         # check here for the torch.optim doc: https://pytorch.org/docs/stable/optim.html
-        optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
+        optimizer = torch.optim.AdamW(
+            self.parameters(),
+            lr=self.learning_rate,
+            weight_decay=1e-4
+        )
         # check here for the nn.CrossEntropyLoss doc: https://pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html
-        loss_function = nn.CrossEntropyLoss()
+        loss_function = nn.CrossEntropyLoss(label_smoothing=0.1)
+
         # for training accuracy investigation purpose
         accuracy_evaluator = Evaluate_Accuracy('training evaluator', '')
         loss_list = []
@@ -74,7 +83,7 @@ class Method_MLP(method, nn.Module):
             y_true = torch.LongTensor(np.array(y))
             # calculate the training loss
             train_loss = loss_function(y_pred, y_true)
-            loss_list.append(train_loss.item)
+            loss_list.append(train_loss.item())
             # check here for the gradient init doc: https://pytorch.org/docs/stable/generated/torch.optim.Optimizer.zero_grad.html
             optimizer.zero_grad()
             # check here for the loss.backward doc: https://pytorch.org/docs/stable/generated/torch.Tensor.backward.html
