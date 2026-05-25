@@ -1,0 +1,12 @@
+Metric,Value
+Final Training Loss,1.005250015315387
+Best Training Loss,1.005250015315387
+Evaluation Loss,0.9345257720890667
+Accuracy,0.7730927978481659
+Precision,0.8319651894576792
+Recall,0.7063486062804256
+F1,0.7451355414196991
+Number of Epochs,30.0
+Number of Jokes,1623.0
+Vocabulary Size,4722.0
+Number of Training Sequences,21563.0
