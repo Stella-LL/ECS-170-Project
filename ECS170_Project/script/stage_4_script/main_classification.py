@@ -1,11 +1,10 @@
-
-
 import os
 import sys
 import re
 from collections import Counter
 
 import torch
+torch.manual_seed(42)
 from torch.utils.data import Dataset, DataLoader
 
 # Add stage 4 code folder to Python path
@@ -16,12 +15,12 @@ project_dir = os.path.dirname(script_dir)
 stage_4_code_dir = os.path.join(project_dir, "code", "stage_4_code")
 sys.path.append(stage_4_code_dir)
 
-from Method_RNN_Classification import Method_RNN
+from Method_GRU_Classification import Method_RNN
 from Result_Saver_RNN import Result_Saver_RNN
 
 
 class TextClassificationDataset(Dataset):
-    def __init__(self, texts, labels, word_to_index, max_length=300):
+    def __init__(self, texts, labels, word_to_index, max_length=500):
         self.texts = texts
         self.labels = labels
         self.word_to_index = word_to_index
@@ -104,7 +103,7 @@ def build_vocabulary(texts, max_vocab_size=20000, min_freq=2):
 
 
 def main():
-    print("Stage 4 Text Classification with RNN")
+    print("Stage 4 Text Classification with GRU")
 
     # Define paths
     train_folder = os.path.join(project_dir, "data", "stage_4_data", "text_classification", "train")
@@ -123,14 +122,14 @@ def main():
     print("Vocabulary size:", vocab_size)
 
     # Hyperparameters
-    max_length = 300
+    max_length = 500
     batch_size = 64
     embedding_dim = 128
     hidden_size = 128
     num_classes = 2
     num_layers = 1
     learning_rate = 0.001
-    epochs = 10
+    epochs = 15
 
     print("Creating datasets and dataloaders...")
     train_dataset = TextClassificationDataset(
@@ -159,7 +158,7 @@ def main():
         shuffle=False
     )
 
-    print("Training RNN model...")
+    print("Training GRU model...")
     method = Method_RNN(
         vocab_size=vocab_size,
         embedding_dim=embedding_dim,
@@ -172,7 +171,7 @@ def main():
 
     loss_history, accuracy_history = method.train_model(train_loader)
 
-    print("Evaluating RNN model...")
+    print("Evaluating GRU model...")
     evaluation_results = method.evaluate_model(test_loader)
 
     print("Saving results...")
@@ -182,13 +181,13 @@ def main():
         loss_history=loss_history,
         accuracy_history=accuracy_history,
         evaluation_results=evaluation_results,
-        model_name="RNN_Classification"
+        model_name="GRU_Classification"
     )
 
-    model_path = os.path.join(result_folder, "rnn_classification_model.pth")
+    model_path = os.path.join(result_folder, "gru_classification_model.pth")
     method.save_model(model_path)
 
-    print("Finished Stage 4 text classification.")
+    print("Finished Stage 4 GRU classification.")
 
 
 if __name__ == "__main__":
