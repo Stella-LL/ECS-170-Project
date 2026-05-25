@@ -1,5 +1,3 @@
-
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -10,8 +8,14 @@ class RNN_Text_Classifier(nn.Module):
     def __init__(self, vocab_size, embedding_dim, hidden_size, num_classes, num_layers=1):
         super(RNN_Text_Classifier, self).__init__()
 
+        self.hidden_size = hidden_size
+        self.num_layers = num_layers
+
+        # Convert word indices into word vectors.
+        # padding_idx=0 tells PyTorch that index 0 is the <PAD> token.
         self.embedding = nn.Embedding(vocab_size, embedding_dim, padding_idx=0)
 
+        # GRU reads the review from left-to-right.
         self.rnn = nn.GRU(
             input_size=embedding_dim,
             hidden_size=hidden_size,
@@ -19,26 +23,40 @@ class RNN_Text_Classifier(nn.Module):
             batch_first=True
         )
 
+        # Final classifier layer.
         self.fc = nn.Linear(hidden_size, num_classes)
 
     def forward(self, x):
         # x shape: [batch_size, sequence_length]
+        # Each row is one padded review.
+
+        # Convert word indices to embeddings.
         embedded = self.embedding(x)
 
+        # Run the full sequence through GRU.
         # rnn_out shape: [batch_size, sequence_length, hidden_size]
-        # hidden shape: [num_layers, batch_size, hidden_size]
         rnn_out, hidden = self.rnn(embedded)
 
-        # Use the final hidden state for classification
-        final_hidden = hidden[-1]
+        # Architecture 2 from the slide:
+        # Instead of only using the last hidden state, use all hidden states.
+        # We average hidden states over the real words and ignore <PAD> positions.
+        mask = (x != 0).unsqueeze(-1).to(rnn_out.device)
+        masked_rnn_out = rnn_out * mask
+
+        lengths = (x != 0).sum(dim=1).unsqueeze(1).to(rnn_out.device)
+        lengths = torch.clamp(lengths, min=1)
+
+        final_hidden = masked_rnn_out.sum(dim=1) / lengths
+
+        # Predict negative/positive class scores.
         output = self.fc(final_hidden)
 
         return output
 
 
 class Method_RNN:
-    def __init__(self, vocab_size, embedding_dim=128, hidden_size=128, num_classes=2, num_layers=2,
-                 learning_rate=0.001, epochs=10, device=None):
+    def __init__(self, vocab_size, embedding_dim=128, hidden_size=128, num_classes=2, num_layers=1,
+                 learning_rate=0.0005, epochs=15, device=None):
         self.vocab_size = vocab_size
         self.embedding_dim = embedding_dim
         self.hidden_size = hidden_size
@@ -84,6 +102,10 @@ class Method_RNN:
                 loss = self.loss_function(outputs, batch_y)
 
                 loss.backward()
+
+                # Clip gradients to reduce exploding-gradient problems in RNN training.
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=5.0)
+
                 self.optimizer.step()
 
                 total_loss += loss.item()
