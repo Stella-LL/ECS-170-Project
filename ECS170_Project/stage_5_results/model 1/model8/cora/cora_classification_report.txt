@@ -1,0 +1,13 @@
+                        precision    recall  f1-score   support
+
+            Case_Based       0.56      0.87      0.68       150
+    Genetic_Algorithms       0.67      0.38      0.49       150
+       Neural_Networks       0.55      0.55      0.55       150
+ Probabilistic_Methods       0.77      0.66      0.71       150
+Reinforcement_Learning       0.70      0.65      0.68       150
+         Rule_Learning       0.77      0.79      0.78       150
+                Theory       0.64      0.69      0.66       150
+
+              accuracy                           0.66      1050
+             macro avg       0.67      0.66      0.65      1050
+          weighted avg       0.67      0.66      0.65      1050
