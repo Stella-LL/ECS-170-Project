@@ -1,0 +1,12 @@
+              precision    recall  f1-score   support
+
+          AI       0.75      0.73      0.74       200
+      Agents       0.46      0.53      0.49       200
+          DB       0.62      0.41      0.49       200
+         HCI       0.60      0.80      0.69       200
+          IR       0.62      0.71      0.66       200
+          ML       0.77      0.58      0.67       200
+
+    accuracy                           0.63      1200
+   macro avg       0.64      0.63      0.62      1200
+weighted avg       0.64      0.63      0.62      1200
